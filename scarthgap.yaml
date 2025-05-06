@@ -1,0 +1,25 @@
+header:
+  version: 17
+  includes:
+    - .common.yaml
+
+machine: qemux86-64
+distro: poky
+repos:
+  poky:
+    url: "https://github.com/yoctoproject/poky"
+    branch: "scarthgap"
+    commit: "792d18b4cb2451b00280641403e6eaf37bd6e53f"
+    layers:
+      meta:
+      meta-poky:
+  meta-openembedded:
+    url: "https://github.com/openembedded/meta-openembedded"
+    branch: "scarthgap"
+    commit: "e8fd97d86af86cdcc5a6eb3f301cbaf6a2084943"
+    layers:
+      meta-oe:
+  meta-cyclonedx:
+    url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
+    branch: "scarthgap"
+    commit: "4c9d4db2c25791baa17469d27cf6934ace5c3376"

@@ -1,0 +1,25 @@
+header:
+  version: 17
+  includes:
+    - .common.yaml
+
+machine: qemux86-64
+distro: poky
+repos:
+  poky:
+    url: "https://github.com/yoctoproject/poky"
+    branch: "master"
+    commit: "3475f39be4e60389d8cd81bda9e03c27cc6e956c"
+    layers:
+      meta:
+      meta-poky:
+  meta-openembedded:
+    url: "https://github.com/openembedded/meta-openembedded"
+    branch: "master"
+    commit: "512cc1172e00ad8cfef23e2b25e343cdfe27e342"
+    layers:
+      meta-oe:
+  meta-cyclonedx:
+    url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
+    branch: "main"
+    commit: "7d23269980c804ccb4fac92ffdd515b499c0e6aa"

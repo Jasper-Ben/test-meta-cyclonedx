@@ -1,0 +1,16 @@
+header:
+  version: 17
+
+machine: qemux86-64
+distro: poky
+
+local_conf_header:
+  sstate_cache: |
+    BB_HASHSERVE_UPSTREAM = "wss://hashserv.yoctoproject.org/ws"
+    SSTATE_MIRRORS ?= "file://.* http://cdn.jsdelivr.net/yocto/sstate/all/PATH;downloadfilename=PATH"
+    BB_HASHSERVE = "auto"
+    BB_SIGNATURE_HANDLER = "OEEquivHash"
+  debug_tweaks: |
+    EXTRA_IMAGE_FEATURES += "allow-empty-password allow-root-login empty-root-password post-install-logging serial-autologin-root"
+  cyclonedx: |
+    INHERIT += "cyclonedx-export"
