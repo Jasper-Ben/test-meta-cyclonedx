@@ -19,6 +19,9 @@ repos:
     commit: "e8fd97d86af86cdcc5a6eb3f301cbaf6a2084943"
     layers:
       meta-oe:
+    patches:
+      0001-Add-freerdp-2.11.7-recipe:
+        path: "patches/0001-Add-freerdp-2.11.7-recipe.patch"
   meta-cyclonedx:
     url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
     branch: "scarthgap"
