@@ -8,15 +8,15 @@ distro: poky
 repos:
   poky:
     url: "https://github.com/yoctoproject/poky"
-    branch: "master"
+    branch: "walnascar"
     layers:
       meta:
       meta-poky:
   meta-openembedded:
     url: "https://github.com/openembedded/meta-openembedded"
-    branch: "master"
+    branch: "walnascar"
     layers:
       meta-oe:
   meta-cyclonedx:
     url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
-    branch: "main"
+    branch: "walnascar"

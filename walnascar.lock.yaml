@@ -1,0 +1,10 @@
+header:
+    version: 14
+overrides:
+    repos:
+        poky:
+            commit: b4ecf098a662a471439892cefac159f34ed7e7c1
+        meta-openembedded:
+            commit: dca497d728792e3cb655c78455c2d649af312ce8
+        meta-cyclonedx:
+            commit: 9edcc0e678a5c1772773add1615a4d0111ad65b4
