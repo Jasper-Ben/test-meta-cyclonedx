@@ -1,14 +1,14 @@
-From 995c095e86a1ff8dfb56f8165b6efdf9fd9f72e0 Mon Sep 17 00:00:00 2001
+From ff14bf58ec119603d2b5854d3d1abc840b0db236 Mon Sep 17 00:00:00 2001
 From: kas <kas@example.com>
 Date: Tue, 29 Jul 2025 15:01:32 +0200
 Subject: [PATCH] Add freerdp 2.11.7 recipe
 
 ---
- ...mpilation-warnings-in-ainput-channel.patch |  72 +++++++++++++
+ ...mpilation-warnings-in-ainput-channel.patch |  72 ++++++++++++
  .../0001-Fixed-compilation-warnings.patch     |  27 +++++
  .../freerdp/freerdp/CVE-2024-32661.patch      |  27 +++++
- .../recipes-support/freerdp/freerdp_2.11.7.bb | 101 ++++++++++++++++++
- 4 files changed, 227 insertions(+)
+ .../recipes-support/freerdp/freerdp_2.11.7.bb | 104 ++++++++++++++++++
+ 4 files changed, 230 insertions(+)
  create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings-in-ainput-channel.patch
  create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings.patch
  create mode 100644 meta-oe/recipes-support/freerdp/freerdp/CVE-2024-32661.patch
@@ -160,10 +160,10 @@ index 0000000000..002135b5e4
 + 	if (ilen < 0)
 diff --git a/meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb b/meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb
 new file mode 100644
-index 0000000000..a78724b925
+index 0000000000..6291d2210b
 --- /dev/null
 +++ b/meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,104 @@
 +# Copyright (C) 2010-2012 O.S. Systems Software Ltda. All Rights Reserved
 +# Released under the MIT license
 +
@@ -173,6 +173,8 @@ index 0000000000..a78724b925
 +SECTION = "net"
 +LICENSE = "Apache-2.0"
 +LIC_FILES_CHKSUM = "file://LICENSE;md5=3b83ef96387f14655fc854ddc3c6bd57"
++
++S = "${WORKDIR}/git"
 +
 +inherit pkgconfig cmake gitpkgv
 +
@@ -188,6 +190,7 @@ index 0000000000..a78724b925
 +           file://0001-Fixed-compilation-warnings-in-ainput-channel.patch \
 +           file://CVE-2024-32661.patch \
 +           "
++
 +
 +
 +EXTRA_OECMAKE += " \
