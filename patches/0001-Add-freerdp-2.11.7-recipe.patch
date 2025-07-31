@@ -1,13 +1,163 @@
-From ec9e5a57b849b498f97cfc432db431066d43595a Mon Sep 17 00:00:00 2001
-From: Jasper Orschulko <jasper@fancydomain.eu>
+From 995c095e86a1ff8dfb56f8165b6efdf9fd9f72e0 Mon Sep 17 00:00:00 2001
+From: kas <kas@example.com>
 Date: Tue, 29 Jul 2025 15:01:32 +0200
 Subject: [PATCH] Add freerdp 2.11.7 recipe
 
 ---
+ ...mpilation-warnings-in-ainput-channel.patch |  72 +++++++++++++
+ .../0001-Fixed-compilation-warnings.patch     |  27 +++++
+ .../freerdp/freerdp/CVE-2024-32661.patch      |  27 +++++
  .../recipes-support/freerdp/freerdp_2.11.7.bb | 101 ++++++++++++++++++
- 1 file changed, 101 insertions(+)
+ 4 files changed, 227 insertions(+)
+ create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings-in-ainput-channel.patch
+ create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings.patch
+ create mode 100644 meta-oe/recipes-support/freerdp/freerdp/CVE-2024-32661.patch
  create mode 100644 meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb
 
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings-in-ainput-channel.patch b/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings-in-ainput-channel.patch
+new file mode 100644
+index 0000000000..62600cddab
+--- /dev/null
++++ b/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings-in-ainput-channel.patch
+@@ -0,0 +1,72 @@
++From 130094de3244d5039e463e1142e1ec487c1104ef Mon Sep 17 00:00:00 2001
++From: Armin Novak <armin.novak@thincast.com>
++Date: Tue, 22 Feb 2022 12:05:08 +0100
++Subject: [PATCH] Fixed compilation warnings in ainput channel
++
++Upstream-Status: Backport [130094de3 Fixed compilation warnings in ainput channel]
++Signed-off-by: Martin Jansa <martin.jansa@gmail.com>
++---
++ channels/ainput/server/ainput_main.c | 18 ++++++++++++------
++ 1 file changed, 12 insertions(+), 6 deletions(-)
++
++diff --git a/channels/ainput/server/ainput_main.c b/channels/ainput/server/ainput_main.c
++index bc1737ee1..17d2ec681 100644
++--- a/channels/ainput/server/ainput_main.c
+++++ b/channels/ainput/server/ainput_main.c
++@@ -192,7 +192,7 @@ static UINT ainput_server_recv_mouse_event(ainput_server* ainput, wStream* s)
++ 
++ static HANDLE ainput_server_get_channel_handle(ainput_server* ainput)
++ {
++-	BYTE* buffer = NULL;
+++	void* buffer = NULL;
++ 	DWORD BytesReturned = 0;
++ 	HANDLE ChannelEvent = NULL;
++ 
++@@ -389,7 +389,7 @@ ainput_server_context* ainput_server_context_new(HANDLE vcm)
++ 		goto fail;
++ 	return &ainput->context;
++ fail:
++-	ainput_server_context_free(ainput);
+++	ainput_server_context_free(&ainput->context);
++ 	return NULL;
++ }
++ 
++@@ -496,17 +496,23 @@ UINT ainput_server_context_poll_int(ainput_server_context* context)
++ 			break;
++ 		case AINPUT_OPENED:
++ 		{
++-			BYTE* buffer = NULL;
+++			union
+++			{
+++				BYTE* pb;
+++				void* pv;
+++			} buffer;
++ 			DWORD BytesReturned = 0;
++ 
++-			if (WTSVirtualChannelQuery(ainput->ainput_channel, WTSVirtualChannelReady, &buffer,
+++			buffer.pv = NULL;
+++
+++			if (WTSVirtualChannelQuery(ainput->ainput_channel, WTSVirtualChannelReady, &buffer.pv,
++ 			                           &BytesReturned) != TRUE)
++ 			{
++ 				WLog_ERR(TAG, "WTSVirtualChannelReady failed,");
++ 			}
++ 			else
++ 			{
++-				if (*buffer != 0)
+++				if (*buffer.pb != 0)
++ 				{
++ 					error = ainput_server_send_version(ainput);
++ 					if (error)
++@@ -518,7 +524,7 @@ UINT ainput_server_context_poll_int(ainput_server_context* context)
++ 				else
++ 					error = CHANNEL_RC_OK;
++ 			}
++-			WTSFreeMemory(buffer);
+++			WTSFreeMemory(buffer.pv);
++ 		}
++ 		break;
++ 		case AINPUT_VERSION_SENT:
++-- 
++2.43.0
++
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings.patch b/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings.patch
+new file mode 100644
+index 0000000000..7fae2703f8
+--- /dev/null
++++ b/meta-oe/recipes-support/freerdp/freerdp/0001-Fixed-compilation-warnings.patch
+@@ -0,0 +1,27 @@
++From 75fa1fa5bd5ef2350390564245fd0984209ac092 Mon Sep 17 00:00:00 2001
++From: akallabeth <akallabeth@posteo.net>
++Date: Mon, 4 Jul 2022 14:34:46 +0200
++Subject: [PATCH] Fixed compilation warnings
++
++Upstream-Status: Backport [https://github.com/FreeRDP/FreeRDP/commit/2da280b8a1748052b70b3f5a1ef0d8e932c33adc]
++Signed-off-by: Khem Raj <raj.khem@gmail.com>
++---
++ client/X11/xf_graphics.c | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/client/X11/xf_graphics.c b/client/X11/xf_graphics.c
++index 5aa1fd48b..fe81e0ed9 100644
++--- a/client/X11/xf_graphics.c
+++++ b/client/X11/xf_graphics.c
++@@ -438,7 +438,7 @@ static BOOL xf_Pointer_New(rdpContext* context, rdpPointer* pointer)
++ 
++ #endif
++ fail:
++-	WLog_DBG(TAG, "%s: %ld", __func__, rc ? pointer : -1);
+++	WLog_DBG(TAG, "%s: %p", __func__, rc ? pointer : NULL);
++ 	return rc;
++ }
++ 
++-- 
++2.45.0
++
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/CVE-2024-32661.patch b/meta-oe/recipes-support/freerdp/freerdp/CVE-2024-32661.patch
+new file mode 100644
+index 0000000000..002135b5e4
+--- /dev/null
++++ b/meta-oe/recipes-support/freerdp/freerdp/CVE-2024-32661.patch
+@@ -0,0 +1,27 @@
++From 71e463e31b4d69f4022d36bfc814592f56600793 Mon Sep 17 00:00:00 2001
++From: akallabeth <akallabeth@posteo.net>
++Date: Sun, 21 Apr 2024 13:56:13 +0200
++Subject: [PATCH] [core,info] fix missing check in rdp_write_logon_info_v1
++
++CVE: CVE-2024-32661
++Upstream-Status: Backport [https://github.com/FreeRDP/FreeRDP/commit/71e463e31b4d69f4022d36bfc814592f56600793]
++Signed-off-by: Peter Marko <peter.marko@siemens.com>
++---
++ libfreerdp/core/info.c | 4 ++++
++ 1 file changed, 4 insertions(+)
++
++diff --git a/libfreerdp/core/info.c b/libfreerdp/core/info.c
++index 7d6eec137..3395e4d2e 100644
++--- a/libfreerdp/core/info.c
+++++ b/libfreerdp/core/info.c
++@@ -1322,6 +1322,10 @@ static BOOL rdp_write_logon_info_v1(wStream* s, logon_info* info)
++ 		return FALSE;
++ 
++ 	/* domain */
+++	WINPR_ASSERT(info);
+++	if (!info->domain || !info->username)
+++		return FALSE;
+++
++ 	ilen = ConvertToUnicode(CP_UTF8, 0, info->domain, -1, &wString, 0);
++ 
++ 	if (ilen < 0)
 diff --git a/meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb b/meta-oe/recipes-support/freerdp/freerdp_2.11.7.bb
 new file mode 100644
 index 0000000000..a78724b925
