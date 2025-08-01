@@ -8,18 +8,20 @@ distro: poky
 repos:
   poky:
     url: "https://github.com/yoctoproject/poky"
-    branch: "scarthgap"
+    branch: "kirkstone"
     layers:
       meta:
       meta-poky:
   meta-openembedded:
     url: "https://github.com/openembedded/meta-openembedded"
-    branch: "scarthgap"
+    branch: "kirkstone"
     layers:
       meta-oe:
     patches:
       0001-Add-freerdp-2.11.7-recipe:
         path: "patches/0001-Add-freerdp-2.11.7-recipe.patch"
+      0002-kirkstone-Add-freerdp-patch:
+        path: "patches/0002-kirkstone-Add-freerdp-patch.patch"
   meta-cyclonedx:
     url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
-    branch: "add_patched_cves_to_vex_scarthgap"
+    branch: "kirkstone"

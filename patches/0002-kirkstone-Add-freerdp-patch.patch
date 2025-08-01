@@ -1,0 +1,144 @@
+From 0e37ddcd4bb7f8ddcecd75713ab9141bf4710883 Mon Sep 17 00:00:00 2001
+From: kas <kas@example.com>
+Date: Thu, 31 Jul 2025 20:33:43 +0200
+Subject: [PATCH] kirkstone: Add freerdp patches
+
+patch /work/patches/0002-kirkstone-Add-freerdp-patch.patch applied by kas
+---
+ .../0001-Fix-const-qualifier-error.patch      | 57 +++++++++++++++++++
+ ...Do-not-install-tools-a-CMake-targets.patch | 45 +++++++++++++++
+ ...pr-makecert-Build-with-install-RPATH.patch |  2 +
+ 3 files changed, 104 insertions(+)
+ create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0001-Fix-const-qualifier-error.patch
+ create mode 100644 meta-oe/recipes-support/freerdp/freerdp/0002-Do-not-install-tools-a-CMake-targets.patch
+
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/0001-Fix-const-qualifier-error.patch b/meta-oe/recipes-support/freerdp/freerdp/0001-Fix-const-qualifier-error.patch
+new file mode 100644
+index 0000000000..87a456d16d
+--- /dev/null
++++ b/meta-oe/recipes-support/freerdp/freerdp/0001-Fix-const-qualifier-error.patch
+@@ -0,0 +1,57 @@
++From 761b4df04a141cc8c9507c741e4046c6c6b00491 Mon Sep 17 00:00:00 2001
++From: Wang Mingyu <wangmy@fujitsu.com>
++Date: Mon, 11 Sep 2023 09:00:39 +0000
++Subject: [PATCH] Fix const qualifier error
++
++Fixes clang error
++error: incompatible function pointer types assigning to 'OBJECT_NEW_FN' (aka 'void *(*)(void *)') from 'void *(const void *)' [-Wincompatible-function-pointer-types]
++|         obj->fnObjectNew = uwac_event_clone;
++|                          ^ ~~~~~~~~~~~~~~~~
++
++https://github.com/FreeRDP/FreeRDP/commit/6e3c00725aae99d03a0baa65430eceddebd9dee8
++Upstream-Status: Backport
++
++Signed-off-by: Wang Mingyu <wangmy@fujitsu.com>
++---
++ libfreerdp/codec/rfx.c            | 4 ++--
++ winpr/include/winpr/collections.h | 2 +-
++ 2 files changed, 3 insertions(+), 3 deletions(-)
++
++diff --git a/libfreerdp/codec/rfx.c b/libfreerdp/codec/rfx.c
++index ccbc5af..eec7365 100644
++--- a/libfreerdp/codec/rfx.c
+++++ b/libfreerdp/codec/rfx.c
++@@ -153,7 +153,7 @@ static void rfx_tile_init(void* obj)
++ 	}
++ }
++ 
++-static void* rfx_decoder_tile_new(void* val)
+++static void* rfx_decoder_tile_new(const void* val)
++ {
++ 	RFX_TILE* tile = NULL;
++ 	WINPR_UNUSED(val);
++@@ -184,7 +184,7 @@ static void rfx_decoder_tile_free(void* obj)
++ 	}
++ }
++ 
++-static void* rfx_encoder_tile_new(void* val)
+++static void* rfx_encoder_tile_new(const void* val)
++ {
++ 	WINPR_UNUSED(val);
++ 	return calloc(1, sizeof(RFX_TILE));
++diff --git a/winpr/include/winpr/collections.h b/winpr/include/winpr/collections.h
++index 807f011..b8c8d9d 100644
++--- a/winpr/include/winpr/collections.h
+++++ b/winpr/include/winpr/collections.h
++@@ -36,7 +36,7 @@ extern "C"
++ {
++ #endif
++ 
++-	typedef void* (*OBJECT_NEW_FN)(void* val);
+++	typedef void* (*OBJECT_NEW_FN)(const void* val);
++ 	typedef void (*OBJECT_INIT_FN)(void* obj);
++ 	typedef void (*OBJECT_UNINIT_FN)(void* obj);
++ 	typedef void (*OBJECT_FREE_FN)(void* obj);
++-- 
++2.34.1
++
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/0002-Do-not-install-tools-a-CMake-targets.patch b/meta-oe/recipes-support/freerdp/freerdp/0002-Do-not-install-tools-a-CMake-targets.patch
+new file mode 100644
+index 0000000000..2e5e6a4240
+--- /dev/null
++++ b/meta-oe/recipes-support/freerdp/freerdp/0002-Do-not-install-tools-a-CMake-targets.patch
+@@ -0,0 +1,45 @@
++From 0ddaeae351295e48365657482f165652051bbca2 Mon Sep 17 00:00:00 2001
++From: Andreas Cord-Landwehr <cordlandwehr@kde.org>
++Date: Wed, 17 Jan 2024 20:00:58 +0100
++Subject: [PATCH] Do not install tools a CMake targets
++
++The cli tools are installed manually and thus are missing in the sysroot
++folder. Do not export their targets because they do not exist and make
++CMake fail when searching for the library.
++
++Upstream-Status: Inappropriate
++Signed-off-by: Andreas Cord-Landwehr <cordlandwehr@kde.org>
++---
++ winpr/tools/hash-cli/CMakeLists.txt     | 2 +-
++ winpr/tools/makecert-cli/CMakeLists.txt | 2 +-
++ 2 files changed, 2 insertions(+), 2 deletions(-)
++
++diff --git a/winpr/tools/hash-cli/CMakeLists.txt b/winpr/tools/hash-cli/CMakeLists.txt
++index 9f8c7a8a0..b6d048fec 100644
++--- a/winpr/tools/hash-cli/CMakeLists.txt
+++++ b/winpr/tools/hash-cli/CMakeLists.txt
++@@ -43,7 +43,7 @@ set(${MODULE_PREFIX}_LIBS winpr)
++ 
++ target_link_libraries(${MODULE_NAME} ${${MODULE_PREFIX}_LIBS})
++ 
++-install(TARGETS ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tools EXPORT WinPRTargets)
+++install(TARGETS ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tools)
++ 
++ if (WITH_DEBUG_SYMBOLS AND MSVC)
++ 	install(FILES ${CMAKE_BINARY_DIR}/${MODULE_NAME}.pdb DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT symbols)
++diff --git a/winpr/tools/makecert-cli/CMakeLists.txt b/winpr/tools/makecert-cli/CMakeLists.txt
++index 48fda5b5e..c7cf4bfaf 100644
++--- a/winpr/tools/makecert-cli/CMakeLists.txt
+++++ b/winpr/tools/makecert-cli/CMakeLists.txt
++@@ -46,7 +46,7 @@ target_link_libraries(${MODULE_NAME} ${${MODULE_PREFIX}_LIBS} winpr)
++ 
++ set_property(TARGET ${MODULE_NAME} PROPERTY FOLDER "WinPR/Tools")
++ 
++-install(TARGETS ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tools EXPORT WinPRTargets)
+++install(TARGETS ${MODULE_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tools)
++ if (WITH_DEBUG_SYMBOLS AND MSVC)
++     install(FILES ${CMAKE_PDB_BINARY_DIR}/${MODULE_NAME}.pdb DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT symbols)
++ endif()
++-- 
++2.40.1
++
+diff --git a/meta-oe/recipes-support/freerdp/freerdp/winpr-makecert-Build-with-install-RPATH.patch b/meta-oe/recipes-support/freerdp/freerdp/winpr-makecert-Build-with-install-RPATH.patch
+index 0f6f575d02..914f08087b 100644
+--- a/meta-oe/recipes-support/freerdp/freerdp/winpr-makecert-Build-with-install-RPATH.patch
++++ b/meta-oe/recipes-support/freerdp/freerdp/winpr-makecert-Build-with-install-RPATH.patch
+@@ -9,6 +9,8 @@ Update it for 2.0.0.
+ Signed-off-by: Manuel Bachmann <manuel.bachmann@iot.bzh>
+ Signed-off-by: Zheng Ruoqin <zhengrq.fnst@cn.fujitsu.com>
+ ---
++Upstream-Status: Pending
++
+  winpr/tools/makecert-cli/CMakeLists.txt | 3 +++
+  1 file changed, 3 insertions(+)
+ 
+-- 
+2.49.0
+

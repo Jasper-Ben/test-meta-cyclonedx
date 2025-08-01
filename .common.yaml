@@ -19,8 +19,6 @@ local_conf_header:
     SSTATE_MIRRORS ?= "file://.* http://cdn.jsdelivr.net/yocto/sstate/all/PATH;downloadfilename=PATH"
     BB_HASHSERVE = "auto"
     BB_SIGNATURE_HANDLER = "OEEquivHash"
-  debug_tweaks: |
-    EXTRA_IMAGE_FEATURES += "allow-empty-password allow-root-login empty-root-password post-install-logging serial-autologin-root"
   cyclonedx: |
     INHERIT += "cyclonedx-export"
   # add freerdp as a test package, because we know from https://github.com/savoirfairelinux/meta-cyclonedx/pull/22#issuecomment-3022954966
@@ -28,3 +26,6 @@ local_conf_header:
   freerdp: |
     CORE_IMAGE_EXTRA_INSTALL += "freerdp"
     PREFERRED_VERSION_freerdp = "2.11.7"
+  # add curl as a test package, as a test case to ensure that CVE_PRODUCT is correctly split
+  curl: |
+    CORE_IMAGE_EXTRA_INSTALL += "curl"
