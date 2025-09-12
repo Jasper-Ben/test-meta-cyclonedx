@@ -16,16 +16,12 @@ repos:
 local_conf_header:
   sstate_cache: |
     BB_HASHSERVE_UPSTREAM = "wss://hashserv.yoctoproject.org/ws"
-    SSTATE_MIRRORS ?= "file://.* http://cdn.jsdelivr.net/yocto/sstate/all/PATH;downloadfilename=PATH"
+    SSTATE_MIRRORS ?= "file://.* http://sstate.yoctoproject.org/all/PATH;downloadfilename=PATH"
     BB_HASHSERVE = "auto"
     BB_SIGNATURE_HANDLER = "OEEquivHash"
   cyclonedx: |
     INHERIT += "cyclonedx-export"
-  # add freerdp as a test package, because we know from https://github.com/savoirfairelinux/meta-cyclonedx/pull/22#issuecomment-3022954966
-  # that this fails
-  freerdp: |
-    CORE_IMAGE_EXTRA_INSTALL += "freerdp"
-    PREFERRED_VERSION_freerdp = "2.11.7"
-  # add curl as a test package, as a test case to ensure that CVE_PRODUCT is correctly split
-  curl: |
-    CORE_IMAGE_EXTRA_INSTALL += "curl"
+    CYCLONEDX_RUNTIME_PACKAGES_ONLY = "0"
+  # install libgcc explicitly
+  gcc: |
+    CORE_IMAGE_EXTRA_INSTALL += "libgcc"

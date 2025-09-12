@@ -22,4 +22,4 @@ repos:
         path: "patches/0001-Add-freerdp-2.11.7-recipe.patch"
   meta-cyclonedx:
     url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
-    branch: "add_patched_cves_to_vex_scarthgap"
+    branch: "scarthgap"

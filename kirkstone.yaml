@@ -25,3 +25,5 @@ repos:
   meta-cyclonedx:
     url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
     branch: "kirkstone"
+local_conf_header:
+  sstate_cache: |
