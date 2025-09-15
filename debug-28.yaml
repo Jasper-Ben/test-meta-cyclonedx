@@ -1,0 +1,18 @@
+header:
+  version: 17
+  includes:
+    - .common.yaml
+
+machine: qemux86-64
+distro: poky
+repos:
+  poky:
+    url: "https://github.com/yoctoproject/poky"
+    branch: "scarthgap"
+    commit: "f7def85be9f99dcb4ba488bead201f670304379b"
+    layers:
+      meta:
+      meta-poky:
+  meta-cyclonedx:
+    url: "https://github.com/iris-GmbH/meta-cyclonedx.git"
+    branch: "scarthgap"
